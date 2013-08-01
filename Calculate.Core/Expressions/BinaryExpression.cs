@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace Calculate.Core.Expressions
 {
+    [DebuggerStepThrough]
     public class BinaryExpression : Expression
     {
         private readonly Expression _leftOperand;
@@ -39,6 +41,23 @@ namespace Calculate.Core.Expressions
             LeftOperand.Accept(visitor);
             RightOperand.Accept(visitor);
             visitor.Visit(this);
+        }
+
+        public override string ToString()
+        {
+            switch (Operator)
+            {
+                case BinaryOperator.Addition:
+                    return LeftOperand + "+" + RightOperand;
+                case BinaryOperator.Subtraction:
+                    return LeftOperand + "-" + RightOperand;
+                case BinaryOperator.Multiplication:
+                    return LeftOperand + "*" + RightOperand;
+                case BinaryOperator.Division:
+                    return LeftOperand + "/" + RightOperand;
+                default:
+                    return "";
+            }
         }
     }
 }

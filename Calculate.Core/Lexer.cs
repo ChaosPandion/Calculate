@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -144,13 +145,18 @@ namespace Calculate.Core
         End
     }
 
+
+    [DebuggerStepThrough]
     class Token
     {
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private readonly TokenType _type;
+
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)] 
         private readonly object _value;
 
         public Token(TokenType type, object value = null)
-        {
+        { 
             _type = type;
             _value = value;
         }
@@ -163,6 +169,32 @@ namespace Calculate.Core
         public object Value
         {
             get { return _value; }
+        }
+
+        public override string ToString()
+        {
+            switch (Type)
+            {
+                case TokenType.Number:
+                case TokenType.Identifier:
+                    if (Value == null)
+                        goto default;
+                    return Value.ToString();
+                case TokenType.LeftParentheses:
+                    return "(";
+                case TokenType.RightParentheses:
+                    return ")";
+                case TokenType.Plus:
+                    return "+";
+                case TokenType.Dash:                    
+                    return "-";
+                case TokenType.Multiply:
+                    return "*";
+                case TokenType.Divide:
+                    return "/";
+                default:
+                    return "";
+            }
         }
     }
 }

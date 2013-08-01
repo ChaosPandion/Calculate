@@ -45,6 +45,7 @@
     <Compile Include="Expressions\ConstantExpression.cs" />
     <Compile Include="Evaluator.cs" />
     <Compile Include="Expressions\Expression.cs" />
+    <Compile Include="Expressions\GroupedExpression.cs" />
     <Compile Include="Expressions\IExpressionVisitor.cs" />
     <Compile Include="Expressions\UnaryExpression.cs" />
     <Compile Include="Expressions\UnaryOperator.cs" />

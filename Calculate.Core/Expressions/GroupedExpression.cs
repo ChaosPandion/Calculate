@@ -8,28 +8,29 @@ using System.Threading.Tasks;
 namespace Calculate.Core.Expressions
 {
     [DebuggerStepThrough]
-    public class ConstantExpression : Expression
-    {
-        private readonly object _value;
+    public class GroupedExpression : Expression
+    {        
+        private readonly Expression _operand;
 
-        public ConstantExpression(object value)
+        public GroupedExpression(Expression operand)
         {
-            _value = value;
+            Debug.Assert(operand != null);
+            _operand = operand;
         }
 
-        public object Value
+        public Expression Operand
         {
-            get { return _value; }
+            get { return _operand; }
         }
 
         public override void Accept(IExpressionVisitor visitor)
         {
-            visitor.Visit(this);
+            Operand.Accept(visitor);
         }
 
         public override string ToString()
         {
-            return (Value ?? "").ToString();
+            return "(" + Operand + "}";
         }
     }
 }

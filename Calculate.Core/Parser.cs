@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -14,7 +15,7 @@ namespace Calculate.Core
             var lexer = new Lexer(input);
             if (!lexer.Next())
                 return null;
-            return ParseGrouped(lexer) ?? ParseUngrouped(lexer);
+            return ParseUngrouped(lexer);
         }
 
         static Expression ParseUngrouped(Lexer lexer)
@@ -28,6 +29,7 @@ namespace Calculate.Core
             var left = ParseMultiplicativeExpression(lexer);
             if (left == null)
             {
+                Debug.WriteLine("ParseAdditiveExpression: No MultiplicativeExpression was found.");
                 return null;
             }
             var type = lexer.CurrentToken.Type;
@@ -41,12 +43,14 @@ namespace Calculate.Core
             }
             if (!lexer.Next())
             {
+                Debug.WriteLine("ParseAdditiveExpression: No token following operator.");
                 lexer.PopState();
                 return null;
             }
             var right = ParseAdditiveExpression(lexer);
             if (right == null)
             {
+                Debug.WriteLine("ParseAdditiveExpression: No expression following operator.");
                 lexer.PopState();
                 return null;
             }
@@ -121,6 +125,7 @@ namespace Calculate.Core
                 case TokenType.Dash:
                     if (!lexer.Next())
                     {
+                        Debug.WriteLine("ParseUnaryExpression: No token following unary operator.");
                         lexer.PopState();
                         return null;
                     }
@@ -129,6 +134,7 @@ namespace Calculate.Core
             var operand = ParsePrimaryExpression(lexer);
             if (operand == null)
             {
+                Debug.WriteLine("ParseUnaryExpression: No operand following unary operator.");
                 lexer.PopState();
                 return null;
             }
@@ -188,7 +194,7 @@ namespace Calculate.Core
                 return null;
             }
 
-            lexer.Next();
+            result = new GroupedExpression(result);
             return result;
         }
     }
