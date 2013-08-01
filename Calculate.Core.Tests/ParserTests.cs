@@ -1,4 +1,5 @@
 ﻿using System;
+using Calculate.Core.Expressions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Calculate.Core.Tests

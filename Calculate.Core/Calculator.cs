@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Calculate.Core.Expressions;
 
 namespace Calculate.Core
 {
@@ -26,8 +27,8 @@ namespace Calculate.Core
             Result r = null;
             try
             {
-                var e = Expression.Parse(input);
-                r = new Result(input, e.Evaluate());
+                var e = Parser.Parse(input);
+                r = new Result(input, Evaluator.Run(e));
             }
             catch (Exception ex)
             {

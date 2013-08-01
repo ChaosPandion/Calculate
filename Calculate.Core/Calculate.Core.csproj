@@ -40,7 +40,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Calculator.cs" />
-    <Compile Include="Expression.cs" />
+    <Compile Include="Expressions\BinaryExpression.cs" />
+    <Compile Include="Expressions\BinaryOperator.cs" />
+    <Compile Include="Expressions\ConstantExpression.cs" />
+    <Compile Include="Evaluator.cs" />
+    <Compile Include="Expressions\Expression.cs" />
+    <Compile Include="Expressions\IExpressionVisitor.cs" />
+    <Compile Include="Expressions\UnaryExpression.cs" />
+    <Compile Include="Expressions\UnaryOperator.cs" />
     <Compile Include="Lexer.cs" />
     <Compile Include="Parser.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

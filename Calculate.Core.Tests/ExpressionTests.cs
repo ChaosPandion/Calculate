@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Calculate.Core.Expressions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Calculate.Core.Tests
@@ -10,7 +11,8 @@ namespace Calculate.Core.Tests
         private static readonly Dictionary<string, decimal> _expressions = new Dictionary<string, decimal> {
             { "123", 123m },
             { "1+2", 3m },
-            { "1+2+3", 6m }
+            { "1+2+3", 6m },
+            { "2*(2-3)", -2m }
         };
 
         [TestMethod]
@@ -26,9 +28,9 @@ namespace Calculate.Core.Tests
         {
             try
             {
-                var e = Expression.Parse(input);
+                var e = Parser.Parse(input);
                 Assert.IsNotNull(e);
-                Assert.AreEqual(expected, e.Evaluate());
+                Assert.AreEqual(expected, Evaluator.Run(e));
             }
             catch (Exception ex)
             {

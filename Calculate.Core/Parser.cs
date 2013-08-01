@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Calculate.Core.Expressions;
 
 namespace Calculate.Core
 {
@@ -49,17 +50,19 @@ namespace Calculate.Core
                 lexer.PopState();
                 return null;
             }
-            Func<decimal, decimal, decimal> op = null;
+            BinaryExpression result;
             switch (type)
             {
                 case TokenType.Plus:
-                    op = (x, y) => x + y;
+                    result = new BinaryExpression(left, right, BinaryOperator.Addition);
                     break;
                 case TokenType.Dash:
-                    op = (x, y) => x - y;
+                    result = new BinaryExpression(left, right, BinaryOperator.Subtraction);
+                    break;
+                default:
+                    result = null;
                     break;
             }
-            var result = new BinaryExpression(left, right, op);
             return result;
         }
 
@@ -92,17 +95,19 @@ namespace Calculate.Core
                 lexer.PopState();
                 return null;
             }
-            Func<decimal, decimal, decimal> op = null;
+            BinaryExpression result;
             switch (type)
             {
                 case TokenType.Multiply:
-                    op = (x, y) => x * y;
+                    result = new BinaryExpression(left, right, BinaryOperator.Multiplication);
                     break;
                 case TokenType.Divide:
-                    op = (x, y) => x / y;
+                    result = new BinaryExpression(left, right, BinaryOperator.Division);
+                    break;
+                default:
+                    result = null;
                     break;
             }
-            var result = new BinaryExpression(left, right, op);
             return result;
         }
 
@@ -112,7 +117,8 @@ namespace Calculate.Core
             var type = lexer.CurrentToken.Type;
             switch (type)
             {
-                case TokenType.Negation:
+                case TokenType.Plus:
+                case TokenType.Dash:
                     if (!lexer.Next())
                     {
                         lexer.PopState();
@@ -126,14 +132,20 @@ namespace Calculate.Core
                 lexer.PopState();
                 return null;
             }
-            Func<decimal, decimal> op = null;
+            Expression result;
             switch (type)
             {
-                case TokenType.Negation:
-                    op = x => -x;
-                    return new UnaryExpression(operand, op);
+                case TokenType.Plus:
+                    result = new UnaryExpression(operand, UnaryOperator.Plus);
+                    break;
+                case TokenType.Dash:
+                    result = new UnaryExpression(operand, UnaryOperator.Minus);
+                    break;
+                default:
+                    result = operand;
+                    break;
             }
-            return operand;
+            return result;
         }
 
         static Expression ParsePrimaryExpression(Lexer lexer)
@@ -170,12 +182,13 @@ namespace Calculate.Core
                 return null;
             }
 
-            if (!lexer.Next() || lexer.CurrentToken.Type != TokenType.RightParentheses)
+            if (lexer.CurrentToken.Type != TokenType.RightParentheses)
             {
                 lexer.PopState();
                 return null;
             }
 
+            lexer.Next();
             return result;
         }
     }
