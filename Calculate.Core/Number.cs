@@ -17,6 +17,24 @@ namespace Calculate.Core
         {
             _mantisa = mantisa;
             _exponent = exponent;
+
+            if (_mantisa.IsZero)
+            {
+                _exponent = 0;
+            }
+            else
+            {
+                BigInteger remainder = 0;
+                while (remainder == 0)
+                {
+                    var shortened = BigInteger.DivRem(_mantisa, 10, out remainder);
+                    if (remainder == 0)
+                    {
+                        _mantisa = shortened;
+                        _exponent++;
+                    }
+                }
+            }
         }
 
         public override int GetHashCode()
@@ -44,6 +62,11 @@ namespace Calculate.Core
         public override string ToString()
         {
             return _mantisa + "e" + _exponent;
+        }
+
+        private static int NumberOfDigits(BigInteger value)
+        {
+            return (value * value.Sign).ToString().Length;
         }
 
         public static Number Pow(Number @base, int exponent)
@@ -133,9 +156,16 @@ namespace Calculate.Core
             return new Number(left._mantisa * right._mantisa, left._exponent + right._exponent);
         }
 
+        private const int Precision = 50;
+
         public static Number operator /(Number dividend, Number divisor)
         {
-            return new Number(dividend._mantisa / divisor._mantisa, dividend._exponent - divisor._exponent);
+            var exponentChange = Precision - (NumberOfDigits(dividend._mantisa) - NumberOfDigits(divisor._mantisa));
+            if (exponentChange < 0)
+                exponentChange = 0;
+            return new Number(
+                (dividend._mantisa * BigInteger.Pow(10, exponentChange)) / divisor._mantisa,
+                dividend._exponent - divisor._exponent - exponentChange);
         }
     }
 }

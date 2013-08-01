@@ -9,10 +9,10 @@ namespace Calculate.Core
     public sealed class Result
     {
         private readonly string _expression;
-        private readonly decimal _value;
+        private readonly Number _value;
         private readonly Exception _exception;
 
-        public Result(string expression, decimal value)
+        public Result(string expression, Number value)
         {
             _expression = expression;
             _value = value;
@@ -29,7 +29,7 @@ namespace Calculate.Core
             get { return _expression; }
         }
 
-        public decimal Value
+        public Number Value
         {
             get { return _value; }
         }

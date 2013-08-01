@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -9,14 +10,12 @@ namespace Calculate.Core
 {
     class Lexer
     {
-        private readonly Stack<int> _savedIndexes = new Stack<int>();
-        private readonly string _input;
-        private int _index;
+        private readonly CharStream _input;
         private Token _currentToken;
 
         public Lexer(string input)
         {
-            _input = input;
+            _input = new CharStream(input);
         }
 
         public Token CurrentToken
@@ -26,61 +25,44 @@ namespace Calculate.Core
 
         internal char Current
         {
-            get { return _input[_index]; }
+            get { return (char)_input.Peek(); }
+        }
+
+        internal bool EndOfInput
+        {
+            get { return _input.Peek() == null; }
         }
 
         public void PushState()
         {
-            _savedIndexes.Push(_index);
+            _input.PushState();
         }
 
         public void PopState()
         {
-            if (_savedIndexes.Count > 0)
-            {
-                _index = _savedIndexes.Pop();
-            }
+            _input.PopState();
         }
 
         public bool Next()
         {
-            if (EndOfInput())
-            {
+            if (EndOfInput)
                 return false;
-            }
             _currentToken = ParseOperator() ?? ParseNumber();
             return true;
         }
 
         void PassWhiteSpace()
         {
-            if (EndOfInput())
-                return;
-            while (char.IsWhiteSpace(Current))
-            {
-                _index++;
-                if (EndOfInput())
-                    return;
-            }
-        }
-
-        bool EndOfInput()
-        {
-            bool end = _index >= _input.Length;
-            if (end && (_currentToken == null || _currentToken.Type != TokenType.End))
-            {
-                _currentToken = new Token(TokenType.End);
-            }
-            return end;
+            while (!EndOfInput && char.IsWhiteSpace(Current))
+                _input.Read();
         }
 
         Token ParseOperator()
         {
             PassWhiteSpace();
-            if (EndOfInput())
-            {
+            if (EndOfInput)
                 return null;
-            } 
+
             TokenType type = TokenType.End;
             switch (Current)
             {
@@ -105,33 +87,75 @@ namespace Calculate.Core
                 default:
                     return null;
             }
-            _index++;
-            PassWhiteSpace();
+            _input.Read();
             return new Token(type);
         }
 
         Token ParseNumber()
         {
             PassWhiteSpace();
-            if (EndOfInput() || !char.IsDigit(Current))
-            {
-                return null;
-            }
+
             var sb = new StringBuilder();
-            do
+
+
+            while (!EndOfInput && char.IsDigit(Current))
+                sb.Append(_input.Read().Value);
+            var integral = int.Parse(sb.ToString());
+
+            
+
+            var fractional = 0m;
+            if (!EndOfInput && Current == '.')
             {
-                sb.Append(Current);
-                _index++;
-                if (EndOfInput())
-                    break;
-            } while (char.IsDigit(Current));
-            PassWhiteSpace();
-            var value = decimal.Parse(sb.ToString());
-            return new Token(TokenType.Number, value);
+                var c = _input.Read().Value;
+                var offset = 0.1m;
+                while (!EndOfInput && char.IsDigit(Current))
+                {
+                    c = _input.Read().Value;
+                    fractional += (c - '0') * offset;
+                    offset /= 10m;
+                }
+            }
+
+            var result = integral + fractional;
+
+            var exponent = 1m;
+            if (!EndOfInput)
+            {
+                switch (Current)
+                {
+                    case 'e':
+                    case 'E':
+                        _input.Read();
+
+                        var powerMod = 1;
+                        switch (Current)
+                        {
+                            case '+':
+                                _input.Read();
+                                break;
+                            case '-':
+                                _input.Read();
+                                powerMod = -1;
+                                break;
+                        }
+
+                        sb.Clear();
+                        while (!EndOfInput && char.IsDigit(Current))
+                            sb.Append(_input.Read().Value);
+                        var power = powerMod * int.Parse(sb.ToString());
+
+                        exponent = (decimal)Math.Pow(10, power);
+                        result *= exponent;
+                        break;
+                }
+            }
+
+            return new Token(TokenType.Number, result);
         }
     }
 
-    enum TokenType
+    public enum TokenType
     {
         Number,
         Identifier,
