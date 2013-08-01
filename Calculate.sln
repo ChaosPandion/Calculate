@@ -7,6 +7,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Calculate.Core", "Calculate
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Calculate.Core.Tests", "Calculate.Core.Tests\Calculate.Core.Tests.csproj", "{CF09039A-B4F7-4986-83C1-B358C1EA4349}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Documents", "Documents", "{A1200A28-0E61-46C0-A35F-A4B32828C79E}"
+	ProjectSection(SolutionItems) = preProject
+		Documents\FormalGrammar.txt = Documents\FormalGrammar.txt
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

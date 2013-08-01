@@ -1,0 +1,19 @@
+Formal Grammar v0.1
+
+Integer = [0-9]+
+
+FractionalPart = \.@Integer
+
+ExponentPart = [eE][\+\-]?@Integer
+
+Number = @Integer@FractionalPart?@ExponentPart?
+
+Expression = @AdditiveExpression
+
+AdditiveExpression = @MultiplicativeExpression([\+\-]@AdditiveExpression)?
+    
+MultiplicativeExpression = @UnaryExpression([\*\/]@MultiplicativeExpression)?
+
+UnaryExpression = [\+\-]?@UnaryExpression
+
+PrimaryExpression = (\(@Expression\))|@Number 
