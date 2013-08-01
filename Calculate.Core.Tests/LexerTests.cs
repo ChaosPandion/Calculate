@@ -10,6 +10,8 @@ namespace Calculate.Core.Tests
         [InlineData("123", 123)]
         [InlineData("123.2", 123.2)]
         [InlineData("123e-1", 123e-1)]
+        [InlineData("123e+1", 123e+1)]
+        [InlineData("123e1", 123e1)]
         [InlineData("123.2e-1", 123.2e-1)]
         public void Lexer_CanIdentifyNumberTokens(string input, double expectedValue)
         {

@@ -37,10 +37,19 @@ namespace Calculate.Core.Tests
             var expectedChar = cs.Peek().Value;
             cs.PushState();
             while (cs.Read() != null) ;
+            var end = cs.Read();
+            Assert.True(!end.HasValue);
             cs.PopState();
             var foundChar = cs.Peek();
             Assert.True(foundChar.HasValue);
             Assert.Equal(expectedChar, foundChar.Value);
+        }
+
+        [Fact]
+        public void CharStream_WorksWithNullInput()
+        {
+            var cs = new CharStream(null);
+            Assert.True(cs.Read() == null);
         }
     }
 }

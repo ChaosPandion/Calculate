@@ -45,9 +45,11 @@ namespace Calculate.Core
 
         public bool Next()
         {
+            PassWhiteSpace();
             if (EndOfInput)
                 return false;
             _currentToken = ParseOperator() ?? ParseNumber();
+            PassWhiteSpace();
             return true;
         }
 
@@ -59,10 +61,6 @@ namespace Calculate.Core
 
         Token ParseOperator()
         {
-            PassWhiteSpace();
-            if (EndOfInput)
-                return null;
-
             TokenType type = TokenType.End;
             switch (Current)
             {
@@ -93,8 +91,6 @@ namespace Calculate.Core
 
         Token ParseNumber()
         {
-            PassWhiteSpace();
-
             var sb = new StringBuilder();
 
 
@@ -150,7 +146,6 @@ namespace Calculate.Core
                         break;
                 }
             }
-
             return new Token(TokenType.Number, result);
         }
     }

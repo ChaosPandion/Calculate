@@ -7,9 +7,15 @@ namespace Calculate.Core.Tests
     {
         [Theory]
         [InlineData("1+2", 3.0)]
+        [InlineData("1 + 2", 3.0)]
         [InlineData("1-2", -1.0)]
+        [InlineData("1 - 2", -1.0)]
         [InlineData("1*2", 2.0)]
+        [InlineData("1 * 2", 2.0)]
         [InlineData("1/4", 0.25)]
+        [InlineData("1 / 4  ", 0.25)]
+        [InlineData("+1 / 4  ", 0.25)]
+        [InlineData("-1 / 4  ", -0.25)]
         public void Evaluator_CanEvaluateSimpleBinaryExpressions(string input, double expected)
         {
             var expression = Parser.Parse(input);

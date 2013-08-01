@@ -8,7 +8,7 @@ namespace Calculate.Core.Tests
     public class ParserTests
     {
         [TestMethod]
-        public void ExpectConstantExpressionNumber()
+        public void Parser_ConstantExpression()
         {
             var e = Parser.Parse("1") as ConstantExpression;
             Assert.IsNotNull(e);
@@ -16,7 +16,7 @@ namespace Calculate.Core.Tests
         }
 
         [TestMethod]
-        public void ExpectAdditionExpression()
+        public void Parser_AdditionExpression()
         {
             var e = Parser.Parse("1+2") as BinaryExpression;
             Assert.IsNotNull(e);

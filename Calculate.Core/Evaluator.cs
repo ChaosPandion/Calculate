@@ -42,7 +42,6 @@ namespace Calculate.Core
                     o *= (Number)(-1m);
                     break;
                 case UnaryOperator.Plus:
-                default:
                     break;
             }
             _results.Push(o);
@@ -66,8 +65,6 @@ namespace Calculate.Core
                     break;
                 case BinaryOperator.Division:
                     result = left / right;
-                    break;
-                default:
                     break;
             }
             _results.Push(result);
