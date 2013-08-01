@@ -9,28 +9,28 @@ namespace Calculate.Core
 {
     public class Evaluator : IExpressionVisitor
     {
-        private readonly Stack<decimal> _results = new Stack<decimal>();
+        private readonly Stack<Number> _results = new Stack<Number>();
 
         private Evaluator()
         {
 
         }
 
-        public static decimal Run(Expression expression)
+        public static Number Run(Expression expression)
         {
             var evaluator = new Evaluator();
             expression.Accept(evaluator);
             return evaluator.Complete();
         }
 
-        public decimal Complete()
+        public Number Complete()
         {
             return _results.Pop();
         }
 
         public void Visit(ConstantExpression e)
         {
-            _results.Push((decimal)e.Value);
+            _results.Push((Number)e.Value);
         }
 
         public void Visit(UnaryExpression e)
@@ -39,7 +39,7 @@ namespace Calculate.Core
             switch (e.Operator)
             {
                 case UnaryOperator.Minus:
-                    o *= -1;
+                    o *= (Number)(-1m);
                     break;
                 case UnaryOperator.Plus:
                 default:
@@ -50,7 +50,7 @@ namespace Calculate.Core
 
         public void Visit(BinaryExpression e)
         {
-            var result = 0m;
+            var result = (Number)0m;
             var right = _results.Pop();
             var left = _results.Pop();
             switch (e.Operator)

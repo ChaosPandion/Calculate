@@ -27,11 +27,12 @@ namespace Calculate.Core.Tests
 
         void EvaluateExpression(string input, decimal expected)
         {
+            var expectedNumber = (Number)expected;
             try
             {
                 var e = Parser.Parse(input);
                 Assert.IsNotNull(e);
-                Assert.AreEqual(expected, Evaluator.Run(e));
+                Assert.AreEqual(expectedNumber, Evaluator.Run(e));
             }
             catch (Exception ex)
             {

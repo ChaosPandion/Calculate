@@ -12,7 +12,7 @@ namespace Calculate.Core.Tests
         {
             var e = Parser.Parse("1") as ConstantExpression;
             Assert.IsNotNull(e);
-            Assert.AreEqual(1m, e.Value);
+            Assert.AreEqual((Number)1m, e.Value);
         }
 
         [TestMethod]
@@ -22,10 +22,10 @@ namespace Calculate.Core.Tests
             Assert.IsNotNull(e);
             var left = e.LeftOperand as ConstantExpression;
             Assert.IsNotNull(e);
-            Assert.AreEqual(1m, left.Value);
+            Assert.AreEqual((Number)1m, left.Value);
             var right = e.RightOperand as ConstantExpression;
             Assert.IsNotNull(e);
-            Assert.AreEqual(2m, right.Value);
+            Assert.AreEqual((Number)2m, right.Value);
         }
     }
 }

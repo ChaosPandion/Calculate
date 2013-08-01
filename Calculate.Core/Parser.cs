@@ -167,7 +167,7 @@ namespace Calculate.Core
             {
                 return null;
             }
-            return new ConstantExpression((decimal)lexer.CurrentToken.Value);
+            return new ConstantExpression((Number)(decimal)lexer.CurrentToken.Value);
         }
 
         static Expression ParseGrouped(Lexer lexer)
