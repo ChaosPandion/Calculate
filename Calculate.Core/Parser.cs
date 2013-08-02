@@ -25,11 +25,10 @@ namespace Calculate.Core
 
         static Expression ParseAdditiveExpression(Lexer lexer)
         {
-            lexer.PushState();
+            var rp = lexer.CreateRestorePoint();
             var left = ParseMultiplicativeExpression(lexer);
             if (left == null)
             {
-                Debug.WriteLine("ParseAdditiveExpression: No MultiplicativeExpression was found.");
                 return null;
             }
             var type = lexer.CurrentToken.Type;
@@ -43,15 +42,13 @@ namespace Calculate.Core
             }
             if (!lexer.Next())
             {
-                Debug.WriteLine("ParseAdditiveExpression: No token following operator.");
-                lexer.PopState();
+                rp();
                 return null;
             }
             var right = ParseAdditiveExpression(lexer);
             if (right == null)
             {
-                Debug.WriteLine("ParseAdditiveExpression: No expression following operator.");
-                lexer.PopState();
+                rp();
                 return null;
             }
             BinaryExpression result;
@@ -72,7 +69,7 @@ namespace Calculate.Core
 
         static Expression ParseMultiplicativeExpression(Lexer lexer)
         {
-            lexer.PushState();
+            var rp = lexer.CreateRestorePoint();
             var left = ParseUnaryExpression(lexer);
             if (left == null)
             {
@@ -90,13 +87,13 @@ namespace Calculate.Core
             }
             if (!lexer.Next())
             {
-                lexer.PopState();
+                rp();
                 return null;
             }
             var right = ParseMultiplicativeExpression(lexer);
             if (right == null)
             {
-                lexer.PopState();
+                rp();
                 return null;
             }
             BinaryExpression result;
@@ -117,7 +114,7 @@ namespace Calculate.Core
 
         static Expression ParseUnaryExpression(Lexer lexer)
         {
-            lexer.PushState();
+            var rp = lexer.CreateRestorePoint();
             var type = lexer.CurrentToken.Type;
             switch (type)
             {
@@ -125,8 +122,7 @@ namespace Calculate.Core
                 case TokenType.Dash:
                     if (!lexer.Next())
                     {
-                        Debug.WriteLine("ParseUnaryExpression: No token following unary operator.");
-                        lexer.PopState();
+                        rp();
                         return null;
                     }
                     break;
@@ -134,8 +130,7 @@ namespace Calculate.Core
             var operand = ParsePrimaryExpression(lexer);
             if (operand == null)
             {
-                Debug.WriteLine("ParseUnaryExpression: No operand following unary operator.");
-                lexer.PopState();
+                rp();
                 return null;
             }
             Expression result;
@@ -167,16 +162,16 @@ namespace Calculate.Core
             {
                 return null;
             }
-            return new ConstantExpression((Number)(decimal)lexer.CurrentToken.Value);
+            return new ConstantExpression((Number)lexer.CurrentToken.Value);
         }
 
         static Expression ParseGrouped(Lexer lexer)
         {
-            lexer.PushState();
+            var rp = lexer.CreateRestorePoint();
 
             if (lexer.CurrentToken.Type != TokenType.LeftParentheses || !lexer.Next())
             {
-                lexer.PopState();
+                rp();
                 return null;
             }
 
@@ -184,13 +179,13 @@ namespace Calculate.Core
 
             if (result == null)
             {
-                lexer.PopState();
+                rp();
                 return null;
             }
 
             if (lexer.CurrentToken.Type != TokenType.RightParentheses)
             {
-                lexer.PopState();
+                rp();
                 return null;
             }
 

@@ -93,6 +93,11 @@ namespace Calculate.Core
             return value._mantisa * BigInteger.Pow(10, value._exponent - reference._exponent);
         }
 
+        public static implicit operator Number(BigInteger value)
+        {
+            return new Number(value, 0);
+        }
+
         public static implicit operator Number(decimal value)
         {
             var mantissa = (BigInteger)value;

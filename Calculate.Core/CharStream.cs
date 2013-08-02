@@ -1,47 +1,46 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Diagnostics;
 
 namespace Calculate.Core
 {
-    class CharStream
+    [DebuggerStepThrough]
+    internal sealed class CharStream
     {
-        readonly Stack<int> _savedIndexes = new Stack<int>();
-        readonly string _input;
-        int _index;
-
         public CharStream(string input)
         {
-            _input = input ?? "";
+            Input = input ?? "";
+            Length = Input.Length;
+            Index = 0;
         }
 
-        public void PushState()
-        {
-            _savedIndexes.Push(_index);
-        }
+        public string Input { get; private set; }
 
-        public void PopState()
+        public int Length { get; private set; }
+
+        public int Index { get; private set; }
+
+        public Action CreateRestorePoint()
         {
-            if (_savedIndexes.Count > 0)
+            var index = Index;
+            return () =>
             {
-                _index = _savedIndexes.Pop();
-            }
+                Index = index;
+            };
         }
 
         public char? Peek()
         {
-            if (_index == _input.Length)
+            if (Index == Length)
                 return null;
-            return _input[_index];
+            return Input[Index];
         }
 
         public char? Read()
         {
-            if (_index == _input.Length)
+            if (Index == Length)
                 return null;
-            return _input[_index++];
+            return Input[Index++];
         }
     }
 }

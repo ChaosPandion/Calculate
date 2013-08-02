@@ -11,12 +11,19 @@ namespace Calculate.Core
     class Lexer
     {
         private readonly CharStream _input;
+
         private Token _currentToken;
 
         public Lexer(string input)
         {
             _input = new CharStream(input);
+            Line = 1;
+            Column = 1;
         }
+
+        public int Line { get; private set; }
+
+        public int Column { get; private set; }
 
         public Token CurrentToken
         {
@@ -33,14 +40,17 @@ namespace Calculate.Core
             get { return _input.Peek() == null; }
         }
 
-        public void PushState()
+        public Action CreateRestorePoint()
         {
-            _input.PushState();
-        }
-
-        public void PopState()
-        {
-            _input.PopState();
+            var restore = _input.CreateRestorePoint();
+            var line = Line;
+            var column = Column;
+            return () =>
+            {
+                restore();
+                Line = line;
+                Column = column;
+            };
         }
 
         public bool Next()
@@ -53,16 +63,55 @@ namespace Calculate.Core
             return true;
         }
 
+        char? Peek()
+        {
+            return _input.Peek();
+        }
+
+        char? Read()
+        {
+            var c = _input.Read();
+            if (c != null)
+            {
+                Column++;
+            }
+            if (c == null)
+                _currentToken = new Token(TokenType.End);
+            return c;
+        }
+
         void PassWhiteSpace()
         {
-            while (!EndOfInput && char.IsWhiteSpace(Current))
-                _input.Read();
+            while (true)
+            {
+                var c = _input.Peek();
+                var lfCount = 0;
+
+                while (c == ' ' | c == '\t')
+                {
+                    Column++;
+                    _input.Read();
+                    c = _input.Peek();
+                }
+
+                while (c == '\n')
+                {
+                    lfCount++;
+                    Column = 1;
+                    Line++;
+                    _input.Read();
+                    c = _input.Peek();
+                }
+
+                if (lfCount == 0)
+                    return;
+            }
         }
 
         Token ParseOperator()
         {
             TokenType type = TokenType.End;
-            switch (Current)
+            switch (Peek())
             {
                 case '+':
                     type = TokenType.Plus;
@@ -85,35 +134,48 @@ namespace Calculate.Core
                 default:
                     return null;
             }
-            _input.Read();
+            Read();
             return new Token(type);
+        }
+
+        BigInteger? ParseInteger()
+        {
+            var result = default(BigInteger?);
+            while (true)
+            {
+                var c = Peek();
+                if (c == null || !char.IsDigit(c.Value))
+                    break;
+                result = result ?? BigInteger.Zero;
+                result *= 10;
+                result += c.Value - '0';
+                Read();
+            }
+            return result;
         }
 
         Token ParseNumber()
         {
             var sb = new StringBuilder();
 
-
-            while (!EndOfInput && char.IsDigit(Current))
-                sb.Append(_input.Read().Value);
-            var integral = int.Parse(sb.ToString());
-
-            
+            var integerPart = ParseInteger();
+            if (integerPart == null)
+                return null;
 
             var fractional = 0m;
             if (!EndOfInput && Current == '.')
             {
-                var c = _input.Read().Value;
+                var c = Read().Value;
                 var offset = 0.1m;
                 while (!EndOfInput && char.IsDigit(Current))
                 {
-                    c = _input.Read().Value;
+                    c = Read().Value;
                     fractional += (c - '0') * offset;
                     offset /= 10m;
                 }
             }
 
-            var result = integral + fractional;
+            var result = (Number)integerPart.Value + (Number)fractional;
 
             var exponent = 1m;
             if (!EndOfInput)
@@ -122,27 +184,27 @@ namespace Calculate.Core
                 {
                     case 'e':
                     case 'E':
-                        _input.Read();
+                        Read();
 
                         var powerMod = 1;
                         switch (Current)
                         {
                             case '+':
-                                _input.Read();
+                                Read();
                                 break;
                             case '-':
-                                _input.Read();
+                                Read();
                                 powerMod = -1;
                                 break;
                         }
 
                         sb.Clear();
                         while (!EndOfInput && char.IsDigit(Current))
-                            sb.Append(_input.Read().Value);
+                            sb.Append(Read().Value);
                         var power = powerMod * int.Parse(sb.ToString());
 
                         exponent = (decimal)Math.Pow(10, power);
-                        result *= exponent;
+                        result *= (Number)exponent;
                         break;
                 }
             }

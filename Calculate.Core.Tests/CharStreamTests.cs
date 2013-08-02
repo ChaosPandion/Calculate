@@ -1,4 +1,5 @@
-﻿using Xunit;
+﻿using System;
+using Xunit;
 using Xunit.Extensions;
 
 namespace Calculate.Core.Tests
@@ -35,11 +36,11 @@ namespace Calculate.Core.Tests
             for (int i = 0; i < savedIndex; i++)
                 cs.Read();
             var expectedChar = cs.Peek().Value;
-            cs.PushState();
+            var rp = cs.CreateRestorePoint();
             while (cs.Read() != null) ;
             var end = cs.Read();
             Assert.True(!end.HasValue);
-            cs.PopState();
+            rp();
             var foundChar = cs.Peek();
             Assert.True(foundChar.HasValue);
             Assert.Equal(expectedChar, foundChar.Value);

@@ -18,7 +18,7 @@ namespace Calculate.Core.Tests
             var lexer = new Lexer(input);
             Assert.IsTrue(lexer.Next());
             Assert.AreEqual(TokenType.Number, lexer.CurrentToken.Type);
-            Assert.AreEqual(expectedValue, Convert.ToDouble(lexer.CurrentToken.Value));
+            Assert.AreEqual(expectedValue, (double)(Number)lexer.CurrentToken.Value);
         }
 
         [Theory]
@@ -33,6 +33,18 @@ namespace Calculate.Core.Tests
             var lexer = new Lexer(input);
             Assert.IsTrue(lexer.Next());
             Assert.AreEqual(expectedType, lexer.CurrentToken.Type);
+        }
+
+        [Theory]
+        [InlineData("\n123", 2, 4, 123.0)]
+        public void Lexer_CanTrackLineAndColumn(string input, int expectedLine, int expectedColumn, double expectedValue)
+        {
+            var lexer = new Lexer(input);
+            Assert.IsTrue(lexer.Next());
+            Assert.AreEqual(TokenType.Number, lexer.CurrentToken.Type);
+            Assert.AreEqual(expectedValue, (double)(Number)lexer.CurrentToken.Value);
+            Assert.AreEqual(expectedLine, lexer.Line);
+            Assert.AreEqual(expectedColumn, lexer.Column);
         }
     }
 }

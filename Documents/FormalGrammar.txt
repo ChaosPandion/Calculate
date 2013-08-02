@@ -1,19 +1,31 @@
 Formal Grammar v0.1
 
+CarriageReturn = \u000D
+
+LineFeed = \u000A
+
+Tab = \u0009
+
+Space = \u0020
+
+NewLine = @LineFeed
+
+WhiteSpace = (@Tab|@Space|@NewLine)+
+
 Integer = [0-9]+
 
-FractionalPart = \.@Integer
+FractionalPart = \. @Integer
 
-ExponentPart = [eE][\+\-]?@Integer
+ExponentPart = [eE] [\+\-]? @Integer
 
-Number = @Integer@FractionalPart?@ExponentPart?
+Number = @Integer @FractionalPart? @ExponentPart?
 
 Expression = @AdditiveExpression
 
-AdditiveExpression = @MultiplicativeExpression([\+\-]@AdditiveExpression)?
+AdditiveExpression = @MultiplicativeExpression ([\+\-] @AdditiveExpression)?
     
-MultiplicativeExpression = @UnaryExpression([\*\/]@MultiplicativeExpression)?
+MultiplicativeExpression = @UnaryExpression ([\*\/] @MultiplicativeExpression)?
 
-UnaryExpression = [\+\-]?@UnaryExpression
+UnaryExpression = [\+\-]? @UnaryExpression
 
-PrimaryExpression = (\(@Expression\))|@Number 
+PrimaryExpression = (\( @Expression \)) | @Number 
