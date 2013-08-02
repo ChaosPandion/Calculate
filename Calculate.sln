@@ -10,6 +10,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Documents", "Documents", "{A1200A28-0E61-46C0-A35F-A4B32828C79E}"
 	ProjectSection(SolutionItems) = preProject
 		Documents\FormalGrammar.txt = Documents\FormalGrammar.txt
+		Documents\license.txt = Documents\license.txt
 	EndProjectSection
 EndProject
 Global
