@@ -1,14 +1,12 @@
-module Expression (calculate) where
+module Expression (parseText, evalText) where
 
     import Data.Char
     import Text.ParserCombinators.Parsec
     import Text.ParserCombinators.Parsec.Prim
     import Text.ParserCombinators.Parsec.Char
     import Text.ParserCombinators.Parsec.Combinator
-    import Data.Number.BigFloat
-    import Data.Number.Fixed
     import Data.Number.CReal
-    import Data.Decimal
+    import Control.Applicative ((*>), (<*))
     
     type Number = CReal 
 
@@ -27,10 +25,20 @@ module Expression (calculate) where
     
     data Expression = 
         ConstantExpression Number
+        | NameExpression String [Expression]
         | UnaryExpression Expression UnaryOperator
         | BinaryExpression Expression Expression BinaryOperator 
         deriving (Eq, Show)
         
+    parseText input = 
+        parse parseExpression "" input        
+        
+    evalText :: String -> Number
+    evalText input = 
+        case parse parseExpression "" input of {
+            (Left m) -> 0;
+            (Right e) -> evalExpression e; } 
+            
     evalExpression :: Expression -> Number
     evalExpression (BinaryExpression left right Add) = (evalExpression left) + (evalExpression right)
     evalExpression (BinaryExpression left right Subtract) = (evalExpression left) - (evalExpression right)
@@ -39,26 +47,14 @@ module Expression (calculate) where
     evalExpression (BinaryExpression left right Exponentiation) = (evalExpression left) ** (evalExpression right)
     evalExpression (UnaryExpression operand Plus) = evalExpression operand
     evalExpression (UnaryExpression operand Minus) = -(evalExpression operand)
-    evalExpression (ConstantExpression n) = n
-        
-    calculate :: String -> Number
-    calculate input = 
-        case parse parseExpression "" input of {
-            (Left m) -> 0;
-            (Right e) -> evalExpression e; }
+    evalExpression (ConstantExpression n) = n    
 
     parseExpression :: GenParser Char st Expression
-    parseExpression = do
-        spaces
-        value <- parseAdditiveExpression
-        spaces
-        return value
+    parseExpression = spaces *> parseAdditiveExpression <* spaces
         
     parseAdditiveExpression :: GenParser Char st Expression
     parseAdditiveExpression = do
-        spaces
-        value <- parseMultiplicativeExpression
-        spaces
+        value <- spaces *> parseMultiplicativeExpression <* spaces 
         try (do {
             op <- oneOf "+-";
             spaces;
@@ -68,9 +64,7 @@ module Expression (calculate) where
         
     parseMultiplicativeExpression :: GenParser Char st Expression
     parseMultiplicativeExpression = do
-        spaces
-        left <- parseUnaryExpression
-        spaces
+        left <- spaces *> parseUnaryExpression <* spaces
         try (do {
             op <- oneOf "*/^";
             spaces;
@@ -84,12 +78,21 @@ module Expression (calculate) where
         spaces;
         op <- optionMaybe (oneOf "+-");
         spaces;
-        value <- parsePrimaryExpression;
+        value <- try (parseNameExpression) <|> parsePrimaryExpression;
         let result = (case op of { 
                         Just '+' -> UnaryExpression value Plus; 
                         Just '-' -> UnaryExpression value Minus;
                         Nothing -> value });
         return result
+               
+    parseNameExpression :: GenParser Char st Expression
+    parseNameExpression = do
+        spaces;
+        head <- letter 
+        tail <- many $ alphaNum 
+        let name = tail ++ [ head ]
+        args <- (many (try (space >> (parseNameExpression <|> parsePrimaryExpression)))) <|> return []
+        return (NameExpression name args)
         
     parsePrimaryExpression :: GenParser Char st Expression
     parsePrimaryExpression = do
